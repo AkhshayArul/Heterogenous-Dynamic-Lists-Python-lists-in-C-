@@ -15,4 +15,6 @@ Method 1 :
   
 This project aims to implement the result majorly via method 2 .
 
-The end product is an includable like
+The end product is an includable like #include <PythonList> and #include <PythonList_any>
+
+For further information on detailed plan and thought processes refer Documentation folder . 
