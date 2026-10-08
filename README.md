@@ -11,7 +11,7 @@ Method 1 :
  Method 2 :
   Using a vector of custom Element derived classes for (one class for one data type) derived from a single class (Polymorphism)
   This method allows the user to access the data as :
-    auto a = Pylist[<index>].getValue() ;
+    int a = Pylist[<index>]->getValue() ;
   
 This project aims to implement the result majorly via method 2 .
 
