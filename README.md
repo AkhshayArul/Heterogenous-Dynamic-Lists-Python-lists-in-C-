@@ -6,7 +6,7 @@ Implementation of Python-like lists in C++ that allow heterogeneous data type st
 
 ## Implementation
 
-The implementation uses a vector of `std::any` objects and an `ElementProxy` class to return the stored data, which can then be resolved by the user into the appropriate data type.
+The implementation uses a vector of `std::any` objects and an `ElementProxy` class to return the stored data, which can then be resolved by the user into the appropriate data type or the user can get the raw std::any object if they needed it.
 
 This method allows the user to access data using the following syntax:
 
@@ -19,7 +19,7 @@ int a = Pylist[index].getValue<int>();
 The end product is an includable library that can be used as follows:
 
 ```cpp
-#include <PythonList>
+#include <PythonList.h>
 ```
 
 ## Documentation
