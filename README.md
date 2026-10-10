@@ -1,20 +1,27 @@
-# Heterogenous-Dynamic-Lists-Python-lists-in-C-
-Implementation of Python like lists allowing heterogenous data type storage in C++.
+# Heterogeneous Dynamic Lists (Python Lists in C++)
 
-The implementation can be done using two major ways .
+## Overview
 
-Method 1 :
-  Using a vector of std::any objects and using proxy classes to return the stored data which can then be resolved by the user . 
-  This method allows the user to access the data as : 
-    int a = Pylist[<index>].getValue<int>()
+Implementation of Python-like lists in C++ that allow heterogeneous data type storage.
 
- Method 2 :
-  Using a vector of custom Element derived classes for (one class for one data type) derived from a single class (Polymorphism)
-  This method allows the user to access the data as :
-    int a = Pylist[<index>]->getValue() ;
-  
-This project aims to implement the result majorly via method 2 .
+## Implementation
 
-The end product is an includable like #include <PythonList> and #include <PythonList_any>
+The implementation uses a vector of `std::any` objects and an `ElementProxy` class to return the stored data, which can then be resolved by the user into the appropriate data type.
 
-For further information on detailed plan and thought processes refer Documentation folder . 
+This method allows the user to access data using the following syntax:
+
+```cpp
+int a = Pylist[index].getValue<int>();
+```
+
+## Usage
+
+The end product is an includable library that can be used as follows:
+
+```cpp
+#include <PythonList>
+```
+
+## Documentation
+
+For further information on the detailed plan and thought processes, refer to the `Documentation` folder.
