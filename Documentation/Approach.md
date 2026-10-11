@@ -27,4 +27,43 @@ The goal of the project was to implement a Python-like list, so it was decided t
 
 Be it as it may, this project will still require some extent of memory manipulation skills for proper function.
 
-So that was the lore of why the third method was scratched.
+So that was the lore of why the third method was scratched.                                    
+
+# Phase 1: Essential Functions and Methods
+
+## Goal
+
+Phase 1's goal is to complete the indispensable functions and methods needed for this library.
+
+## Internal Storage and the append() Function
+
+Following the main plan, a vector of std::any objects was created to store the data internally inside the list.
+
+The first function that needed to be implemented was a way of putting data into the list, and the function append() was chosen for that purpose.
+
+Initially, the signature of the function was:
+
+cpp
+void PythonList::append(std::any& data);
+
+
+However, this meant that users needed to send in the data in the form of std::any objects, which exposes the internals of the list and is usually not desirable, as append() is one of the most frequently used functions in a list.
+
+So, in order to hide the implementation and allow for a more user-friendly append() method, we decided to use template functions.
+
+This allowed users to add data to the list conveniently, as shown below:
+
+cpp
+list.append(10);
+list.append(20.5);
+
+
+This is much more convenient than before and more Python-like.
+
+## Handling Strings
+
+But in this process, a small caveat was discovered. If we append a string literal, due to the usage of template functions, it can be interpreted as a character pointer (const char*) rather than a std::string, which was not desirable due to the inconvenience it posed while retrieving the data.
+
+So, a separate overload for string literals was introduced to store string instances.
+
+As a consequence, string literals are always stored in the form of std::string and retrieved in the same form. This is much less of an inconvenience, as strings can be converted into character arrays or accessed as C-style strings when needed, and std::string retains the ability to represent and manage character sequences conveniently.
