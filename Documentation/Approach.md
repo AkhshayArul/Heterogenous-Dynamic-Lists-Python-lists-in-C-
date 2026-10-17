@@ -43,9 +43,9 @@ The first function that needed to be implemented was a way of putting data into 
 
 Initially, the signature of the function was:
 
-cpp
+```cpp
 void PythonList::append(std::any& data);
-
+```
 
 However, this meant that users needed to send in the data in the form of std::any objects, which exposes the internals of the list and is usually not desirable, as append() is one of the most frequently used functions in a list.
 
@@ -53,10 +53,10 @@ So, in order to hide the implementation and allow for a more user-friendly appen
 
 This allowed users to add data to the list conveniently, as shown below:
 
-cpp
+```cpp
 list.append(10);
 list.append(20.5);
-
+```
 
 This is much more convenient than before and more Python-like.
 
@@ -67,3 +67,15 @@ But in this process, a small caveat was discovered. If we append a string litera
 So, a separate overload for string literals was introduced to store string instances.
 
 As a consequence, string literals are always stored in the form of std::string and retrieved in the same form. This is much less of an inconvenience, as strings can be converted into character arrays or accessed as C-style strings when needed, and std::string retains the ability to represent and manage character sequences conveniently.
+
+## Data Retrieval and Size Checking
+
+The stored data is retrieved using the `[]` operator and resolving the data from it. The `[]` operator returns a proxy class, `ProxyElement`, which has the method `getValue()` to obtain the data from the proxy.
+
+Sample usage:
+
+```cpp
+int a = list[10].getValue<int>();
+```
+
+As we internally use a vector, checking the size is easy. We only need to find the size of the vector stored inside the class, which is done through the `size()` method.
