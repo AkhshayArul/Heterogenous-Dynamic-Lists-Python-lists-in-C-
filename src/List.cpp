@@ -11,3 +11,11 @@ PythonList::ProxyElement PythonList::operator[](std::size_t index) {
 std::size_t PythonList::size() const {
     return list.size();
 }
+
+void PythonList::clear() {
+    list.clear() ;
+}
+
+bool PythonList::empty() const {
+    return list.empty() ;
+}

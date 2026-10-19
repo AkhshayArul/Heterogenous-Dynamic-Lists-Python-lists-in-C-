@@ -37,12 +37,32 @@ The nested `ProxyElement` class was introduced to provide access to individual e
 
 ### `getValue<T>()`
 
+The `getValue<T>()` method was updated to support both directly stored values and references added using `appendReference()`.
+
 ```cpp
 template<typename T>
 T& getValue();
 ```
 
-This method retrieves the stored value as the requested type using `std::any_cast<T&>()`. The requested type must match the type contained in the `std::any` object. If the types do not match, `std::bad_any_cast` is thrown.
+The method first uses the pointer form of `std::any_cast` to check whether the stored object directly matches the requested type. If it does, a reference to the stored value is returned.
+
+If the types do not match, the method checks whether the stored object is a `std::reference_wrapper<T>`. If so, it returns a reference to the original object using the wrapper's `get()` method.
+
+If neither check succeeds, the method explicitly throws a `std::bad_any_cast` exception.
+
+This allows the same retrieval method to work with both values stored using `append()` and references stored using `appendReference()`, without requiring the user to handle the two cases separately.
+
+**Example:**
+
+```cpp
+int value = 10;
+list.appendReference(value);
+
+int& retrieved = list[0].getValue<int>();
+retrieved = 20;
+```
+
+In this example, `retrieved` refers to the original variable, so modifying it also changes `value` to `20`.
 
 ## 3. `operator[]`
 
@@ -69,3 +89,70 @@ std::size_t size() const;
 ```
 
 The `size()` method returns the number of elements currently stored in the list. Since the list uses a `std::vector` internally, the method obtains this value directly from the vector's `size()` method.
+
+## 5. `appendReference()`
+
+The `appendReference()` method was introduced to allow elements to be added to the list by reference rather than by copying them.
+
+```cpp
+template<typename T>
+void appendReference(T& data);
+```
+
+This method uses `std::ref()` to create a `std::reference_wrapper<T>`, which is then stored inside the internal `std::any` object. This allows the list to refer to the original object instead of storing an independent copy.
+
+Consequently, modifications made to the object through a reference retrieved from the list will also affect the original object.
+
+**Example:**
+
+```cpp
+std::vector<int> values = {10, 20, 30};
+
+list.appendReference(values);
+list[0].getValue<std::vector<int>>()[0] = 100;
+```
+
+In this example, modifying the first element through the list also changes the original vector.
+
+**Note:** The original object must remain alive for as long as its stored reference is used. Accessing the reference after the original object has been destroyed results in undefined behavior.
+
+## 6. `clear()`
+
+The `clear()` method was introduced to remove all elements from the list.
+
+```cpp
+void clear();
+```
+
+It uses the internal vector's `clear()` method to remove all stored elements. The objects owned by the list are destroyed, while objects referred to through `std::reference_wrapper` remain unaffected.
+
+After calling this method, the list contains no elements and its size becomes zero.
+
+**Example:**
+
+```cpp
+list.append(10);
+list.append(20.5);
+
+list.clear();
+```
+
+## 7. `empty()`
+
+The `empty()` method was introduced to check whether the list contains any elements.
+
+```cpp
+bool empty() const;
+```
+
+It returns `true` if the list is empty and `false` otherwise. The method is declared `const` because checking the list's state does not modify it.
+
+**Example:**
+
+```cpp
+if (list.empty()) {
+    std::cout << "The list is empty.";
+}
+```
+
+This provides a convenient way to check whether the list contains elements without explicitly comparing the result of `size()` with zero.

@@ -1,21 +1,23 @@
-#include "../include/List.h" 
+#include "List.h"
 #include <iostream>
 
-using namespace std ;
-
 int main() {
-    PythonList list ;
+    PythonList list;
 
-    list.append(10);
-    list.append(20.5);
-    list.append("Wow") ;
+    std::vector<int> original = {10, 20};
 
-    cout << list.size() << endl ;
+    list.append(original);
+    list.appendReference(original);
 
-    double& a = list[1].getValue<double>()  ;
-    cout << a << endl ;
-    a = 10.5;
+    original.push_back(30);
 
-    cout << list[2].getValue<string>() << endl ;
+    auto& copy = list[0].getValue<std::vector<int>>();
+    auto& reference = list[1].getValue<std::vector<int>>();
 
+    std::cout << copy.size() << '\n';      // 2
+    std::cout << reference.size() << '\n'; // 3
+
+    reference.push_back(40);
+
+    std::cout << original.size() << '\n';  // 4
 }

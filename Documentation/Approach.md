@@ -79,3 +79,34 @@ int a = list[10].getValue<int>();
 ```
 
 As we internally use a vector, checking the size is easy. We only need to find the size of the vector stored inside the class, which is done through the `size()` method.
+
+## Storing Copies and References
+
+The implementation so far only allows users to store copies of objects they append. This is because `std::any` stores its contained object by value, making a copy when an object is copied into it. This behaviour differs from Python's, where lists store references to objects. In C++, objects can be destroyed explicitly or go out of scope, which can invalidate references to them. Storing a copy allows the list to manage the lifetime of the stored object independently of the original object.
+
+For immutable data types such as `int` or `double`, this copying behaviour is often almost indistinguishable from storing references, as their values are not modified in place in the same way as mutable objects. However, the project also aims to support nested lists and mutable data types. Therefore, a new method, `appendReference()`, was added to allow users to append references to existing objects instead of copies.
+
+There are a few catches with this new method, and the reasons for them once again stem from the way C++ works.
+
+1. The concept of references differs between Python and C++. A Python reference is closer to a C++ pointer than to a C++ reference. Reassigning a variable in Python makes it refer to a different object without changing the original object, whereas assigning a new value through a C++ reference modifies the original object. This difference is inherent to the languages, so the behaviour of the list differs slightly from that of a Python list.
+
+2. The next difference stems from Python's automatic memory management, which uses garbage collection. In C++, objects can be destroyed explicitly or automatically when their scope ends. Consequently, an object whose reference is stored inside the list may be destroyed, leaving the stored reference invalid. Accessing such a reference results in undefined behaviour and may cause a crash. Therefore, users must ensure that the objects they reference remain alive for as long as those references are used.
+
+3. Temporary values (rvalues) are prohibited from being appended using this method. Temporary objects are typically destroyed at the end of the full expression in which they are created, which can leave the stored references invalid. In contrast, `append()` stores the object itself, moving it when appropriate, so the stored value does not depend on the lifetime of the original object. Therefore, the following calls are not allowed:
+
+```cpp
+list.appendReference(10);
+list.appendReference(std::vector<int>{1, 2, 3});
+```
+
+### Accommodating `getValue()`
+
+As a result of the newly added `appendReference()` method, the list may now contain `std::any` objects that store values directly or contain a `std::reference_wrapper` referring to an existing object. Therefore, the `getValue()` method needed to be updated to return the appropriate value by reference when an element is accessed.
+
+It was updated to handle both cases. First, it uses the pointer form of `std::any_cast` to check whether the stored object matches the requested type. If it does, the method returns a reference to that object. Otherwise, it checks whether the stored object is a `std::reference_wrapper` of the requested type and, if so, returns a reference to the original object.
+
+If neither check succeeds, the method throws a `std::bad_any_cast` exception.
+
+## `empty()` and `clear()` Methods
+
+The vector's `empty()` method is used to check whether the list contains any elements. The `clear()` method is used to clear the list and destroy all stored objects. Stored `std::reference_wrapper` objects are also destroyed, but the original objects they refer to are not destroyed.
