@@ -10,17 +10,17 @@ The implementation uses a vector of std::any objects and an ElementProxy class t
 
 This method allows the user to access data using the following syntax:
 
-cpp
+```cpp
 int a = Pylist[index].getValue<int>();
-
+```
 
 ## Usage
 
 The end product is an includable library that can be used as follows:
 
-cpp
+```cpp
 #include <PythonList.h>
-
+```
 
 ### Current Usage 
 
@@ -30,15 +30,15 @@ The project is currently under development . To test its features before the ent
 
 Clone the project from GitHub using the following command:
 
-bash
+```bash
 git clone https://github.com/AkhshayArul/Heterogenous-Dynamic-Lists-Python-lists-in-C-.git
-
+```
 
 #### 2. Navigate to the Project Directory
 
-bash
+```bash
 cd Heterogenous-Dynamic-Lists-Python-lists-in-C-
-
+```
 
 #### 3. Compile the Project
 
@@ -48,17 +48,17 @@ Compile the source files along with your main program using a C++17-compatible c
 
 For example, using g++:
 
-bash
+```bash
 g++ -std=c++17 -Iinclude main.cpp src/List.cpp -o PythonList
-
+```
 
 #### 4. Run the Program
 
 On Windows:
 
-bash
+```bash
 PythonList.exe
-
+```
 
 On Linux or macOS:
 
@@ -70,9 +70,9 @@ bash
 
 Include the header in your C++ program:
 
-cpp
+```cpp
 #include "List.h"
-
+```
 
 You can then create a PythonList object and use its available features. Refer to the project documentation for details about the supported operations and their usage.
 
