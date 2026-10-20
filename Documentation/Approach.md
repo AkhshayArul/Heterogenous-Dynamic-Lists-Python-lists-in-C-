@@ -110,3 +110,39 @@ If neither check succeeds, the method throws a `std::bad_any_cast` exception.
 ## `empty()` and `clear()` Methods
 
 The vector's `empty()` method is used to check whether the list contains any elements. The `clear()` method is used to clear the list and destroy all stored objects. Stored `std::reference_wrapper` objects are also destroyed, but the original objects they refer to are not destroyed.
+
+## Printing Contents
+
+The next challenge was finding a way to display all the elements stored inside the list.
+
+So far, retrieving data from `std::any` required a templated function in which the user specified the desired type. However, this approach is not suitable for printing the entire list, as the user cannot be expected to provide the types of all the elements stored in it. This called for a different approach.
+
+Two options were considered:
+
+### 1. Try-Catch Chaining (or Pointer Casting to Avoid Exception Handling)
+
+In this method, the data stored in `std::any` is repeatedly cast to different types until the correct type is found. This can be done by checking whether `std::bad_any_cast` is thrown or, when using pointer-based casting, whether a non-null pointer is returned.
+
+This method is relatively straightforward, but it is tedious and rigid. Supporting multiple data types can become cumbersome, and adding support for new types would require modifying the casting logic.
+
+### 2. Mapping Each Type to Its Own Printing Function
+
+In this method, the type of the data is known when it is appended to the list. This information is used to associate the type with a function capable of printing it, avoiding repeated casting attempts. If a type already has an associated printing function, the existing mapping is retained.
+
+These functions are stored in a `static std::unordered_map`, with `std::type_index` as the key and the corresponding printing function as the value. The key is derived from `typeid` applied to the normalized data type of the template parameter, ensuring that the mapping uses the appropriate type.
+
+The second method was chosen because it offers greater extensibility and a more Python-like feel, allowing support for additional types without having to modify a chain of casting operations.
+
+Whenever data is appended, the implementation checks whether the expression `std::ostream << TYPE` is well-formed. This determines whether the type supports stream insertion, and therefore whether it can be printed using `operator<<`. It does not guarantee that the resulting output will be formatted perfectly; it only establishes that the type is printable through this mechanism.
+
+This technique also allows custom classes to be printed seamlessly, provided they have an accessible and compatible stream insertion operator overload.
+
+If the type is printable, a printing function is created using a lambda expression and inserted into the map using `try_emplace`. This ensures that an existing mapping is not overwritten.
+
+Printing is performed through an overloaded `operator<<`. Each element is visited using a range-based `for` loop. If a printing function is registered for the element's type, that function is used; otherwise, `<unsupported type>` is printed.
+
+## Custom Error Class
+
+So far, attempting to retrieve an element using an incorrect data type would cause `std::any_cast` to throw `std::bad_any_cast`. Exposing this implementation-specific detail directly through the list's interface was considered undesirable, as it ties the error handling to the underlying storage mechanism.
+
+To address this, a custom error class named `TypeMismatchError` was created. It is thrown when the requested type does not match the stored type, instead of allowing `std::bad_any_cast` to propagate directly to the user. It also provides a more descriptive error message, making it easier to understand what went wrong.
