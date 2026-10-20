@@ -10,6 +10,7 @@
 #include <typeindex> 
 #include <type_traits>
 #include <iostream>
+#include <stdexcept>
 
 template<typename T, typename = void>
 struct IsPrintable : std::false_type {};
@@ -21,6 +22,12 @@ struct IsPrintable<T, std::void_t<
             << std::declval<const T&>()
     )
 >> : std::true_type {};
+
+class TypeMismatchError : public std::runtime_error {
+public:
+    explicit TypeMismatchError(const std::string& message)
+        : std::runtime_error(message) {}
+};
 
 class PythonList {
 private:
@@ -49,7 +56,9 @@ public:
                 return ref->get();
             }
 
-            throw std::bad_any_cast();
+            throw TypeMismatchError(
+                "PythonList: requested type does not match stored type"
+            );
         }
 
     };
