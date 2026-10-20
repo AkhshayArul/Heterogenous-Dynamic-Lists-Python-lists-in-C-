@@ -15,6 +15,8 @@ void append(T&& data);
 
 This overload allows users to append data without explicitly constructing a `std::any` object. It uses `std::forward<T>()` to preserve the value category of the argument when storing it in the internal vector.
 
+Calls `registerPrinter` at last .
+
 ### Character Pointer Overload
 
 ```cpp
@@ -22,6 +24,8 @@ void append(const char* data);
 ```
 
 This overload converts the supplied character sequence into a `std::string` before storing it. This ensures that string literals and valid C-style strings passed through this overload are stored as `std::string` objects rather than character pointers.
+
+Calls `registerPrinter<std::string>` at last .
 
 **Example:**
 
@@ -103,6 +107,8 @@ This method uses `std::ref()` to create a `std::reference_wrapper<T>`, which is 
 
 Consequently, modifications made to the object through a reference retrieved from the list will also affect the original object.
 
+Calls registerReferencePrinter at last.
+
 **Example:**
 
 ```cpp
@@ -156,3 +162,54 @@ if (list.empty()) {
 ```
 
 This provides a convenient way to check whether the list contains elements without explicitly comparing the result of `size()` with zero.
+
+## 8. `registerPrinter<T>()`
+
+This function registers a printing function for a datatype if it supports the `<<` operator with `std::ostream`. It uses the `IsPrintable` type trait to check whether the datatype can be printed.
+
+The function uses `std::decay_t<T>` to normalize the datatype before registering it. This ensures that the registered type matches the type stored inside `std::any`.
+
+The printing function is stored in an `std::unordered_map` using `std::type_index` as the key. This allows the appropriate printing function to be retrieved based on the datatype of an element.
+
+If a printer for the datatype is already registered, `try_emplace()` leaves the existing entry unchanged.
+
+## 9. `registerReferencePrinter<T>()`
+
+This function registers a printing function for elements stored using `appendReference()`. Since `appendReference()` stores a `std::reference_wrapper<T>` inside `std::any`, the registered printer uses the reference wrapper type as its key.
+
+When printing an element, the function extracts the stored reference wrapper using `std::any_cast` and accesses the original object using `get()`. The object is then printed using its overloaded `<<` operator.
+
+As with `registerPrinter<T>()`, a printer is registered only if the referenced datatype supports printing.
+
+## 10. `operator<<`
+
+```cpp
+friend std::ostream& operator<<(std::ostream& os, const PythonList& pl);
+```
+
+This operator allows a `PythonList` object to be printed directly using an output stream.
+
+The operator iterates through the elements of the list and searches the printer registry for a printing function matching each element's stored datatype. If a printer is found, it is called to print the element. Otherwise, the operator prints `<unsupported type>`.
+
+The elements are enclosed in square brackets and separated by commas, producing a representation similar to a Python list.
+
+For example:
+
+```cpp
+PythonList list;
+list.append(10);
+list.append(20.5);
+list.append("Hello");
+
+std::cout << list;
+```
+
+Output:
+
+```text
+[10, 20.5, Hello]
+```
+
+The operator returns the output stream, allowing further stream operations to be chained.
+
+This functionality also supports custom datatypes that provide a suitable `operator<<`, without requiring changes to the underlying storage structure.
