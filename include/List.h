@@ -61,6 +61,28 @@ public:
             );
         }
 
+        template <typename T>
+        operator T() {
+            return getValue<T>() ;
+        }
+
+        void print(std::ostream& os) const {
+            auto it = PythonList::printers.find(
+                std::type_index(data.type())
+            );
+
+            if (it != PythonList::printers.end()) {
+                it->second(os, data);
+            } else {
+                os << "<unsupported type>";
+            }
+        }
+
+        friend std::ostream& operator<<(
+            std::ostream& os,
+            const ProxyElement& proxy
+        ) ;
+        
     };
 
     template <typename T>

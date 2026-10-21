@@ -8,6 +8,10 @@ int main() {
     original.append(20.5);
     original.append("String") ;
 
+    int a = original[0];
+
+    std::cout << original[2] ;
+
     list.append(original);
     list.appendReference(original);
 

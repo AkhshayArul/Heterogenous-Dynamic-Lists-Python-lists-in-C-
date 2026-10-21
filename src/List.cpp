@@ -48,3 +48,12 @@ std::ostream& operator<<(std::ostream& os, const PythonList& pl) {
     os << "]";
     return os;
 }
+
+
+std::ostream& operator<<(
+        std::ostream& os,
+        const PythonList::ProxyElement& proxy
+) {
+    proxy.print(os);
+    return os;
+}
