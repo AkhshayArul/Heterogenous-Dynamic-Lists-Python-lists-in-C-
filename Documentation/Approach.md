@@ -146,3 +146,40 @@ Printing is performed through an overloaded `operator<<`. Each element is visite
 So far, attempting to retrieve an element using an incorrect data type would cause `std::any_cast` to throw `std::bad_any_cast`. Exposing this implementation-specific detail directly through the list's interface was considered undesirable, as it ties the error handling to the underlying storage mechanism.
 
 To address this, a custom error class named `TypeMismatchError` was created. It is thrown when the requested type does not match the stored type, instead of allowing `std::bad_any_cast` to propagate directly to the user. It also provides a more descriptive error message, making it easier to understand what went wrong.
+
+# Phase 2: Pythonic Behaviour
+
+## Improved Data Retrieval Interface and `ProxyElement` Print Support
+
+Previously, data retrieval was done using `getValue<T>()`. This required the user to specify the required type in the function call, making the interface a little cumbersome. To improve it, two features were added.
+
+### 1. Type Conversion from `ProxyElement` to the Required Type
+
+A templated type conversion operator was added to `ProxyElement`, allowing it to use the already implemented `getValue<T>()` method internally. This simplifies the interface, as users can now directly write:
+
+```cpp
+int a = list[0];
+```
+
+instead of:
+
+```cpp
+int a = list[0].getValue<int>();
+```
+
+This is a useful improvement over the previous approach. However, since the conversion operator still uses `getValue<T>()` internally, it throws `TypeMismatchError` when an incompatible data type is requested.
+
+### 2. Print Support for `ProxyElement`
+
+Previously, users had to know the type of an element to retrieve its value explicitly, or print the entire list without accessing individual elements directly through the stream insertion operator.
+
+To improve this, print support was added for `ProxyElement`. It uses the print registry constructed when elements are appended and looks up the corresponding printing function whenever an element is printed. Just as when printing the entire list, if an element's type does not have a registered printing function, `<unsupported type>` is printed instead.
+
+With this functionality, users can write:
+
+```cpp
+std::cout << list[0];
+std::cout << list[5];
+```
+
+This allows individual elements to be printed without requiring the user to specify their data types explicitly.
