@@ -24,9 +24,9 @@ struct IsPrintable<T, std::void_t<
 >> : std::true_type {};
 
 class TypeMismatchError : public std::runtime_error {
-public:
-    explicit TypeMismatchError(const std::string& message)
-        : std::runtime_error(message) {}
+    public:
+        explicit TypeMismatchError(const std::string& message)
+            : std::runtime_error(message) {}
 };
 
 class PythonList {
@@ -66,23 +66,12 @@ public:
             return getValue<T>() ;
         }
 
-        void print(std::ostream& os) const {
-            auto it = PythonList::printers.find(
-                std::type_index(data.type())
-            );
-
-            if (it != PythonList::printers.end()) {
-                it->second(os, data);
-            } else {
-                os << "<unsupported type>";
-            }
-        }
-
         friend std::ostream& operator<<(
             std::ostream& os,
             const ProxyElement& proxy
         ) ;
         
+        void print(std::ostream& os) const ;
     };
 
     template <typename T>
@@ -127,7 +116,7 @@ public:
         }
     }
 
-    ProxyElement operator[](std::size_t index);
+    ProxyElement operator[](std::ptrdiff_t index) ;
 
     std::size_t size() const;
 
@@ -136,5 +125,31 @@ public:
     bool empty() const ;
 
     friend std::ostream& operator<<(std::ostream& os, const PythonList& pl);
+
+    template <typename T>
+    void insert(std::ptrdiff_t index, T&& data) {
+        std::ptrdiff_t n = static_cast<std::ptrdiff_t>(list.size());
+
+        if (index < 0) {
+            index += n;
+            if (index < 0)
+                index = 0;
+        } else if (index > n) {
+            index = n;
+        }
+
+        using U = std::decay_t<T>;
+
+        list.insert(
+            list.begin() + index,
+            std::any(std::in_place_type<U>, std::forward<T>(data))
+        );
+
+        registerPrinter<U>();
+    }
+
+    void insert(std::ptrdiff_t index , const char* data) ;
+
+    std::any pop(std::ptrdiff_t index = -1);
 
 };
