@@ -117,3 +117,7 @@ std::any PythonList::pop(std::ptrdiff_t index) {
 
     return result;
 }
+
+void PythonList::remove(const char* value) {
+    remove(std::string(value)) ;
+}

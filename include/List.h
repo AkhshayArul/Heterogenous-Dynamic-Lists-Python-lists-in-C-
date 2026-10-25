@@ -23,9 +23,39 @@ struct IsPrintable<T, std::void_t<
     )
 >> : std::true_type {};
 
+template <typename T, typename = void>
+struct IsEqualityComparable : std::false_type {};
+
+template <typename T>
+struct IsEqualityComparable<
+    T,
+    std::void_t<
+        decltype(std::declval<const T&>() ==
+                 std::declval<const T&>())
+    >
+> : std::bool_constant<
+        std::is_convertible_v<
+            decltype(std::declval<const T&>() ==
+                     std::declval<const T&>()),
+            bool
+        >
+    > {};
+
 class TypeMismatchError : public std::runtime_error {
     public:
         explicit TypeMismatchError(const std::string& message)
+            : std::runtime_error(message) {}
+};
+
+class UnsupportedOperationError : public std::runtime_error {
+    public:
+        explicit UnsupportedOperationError(const std::string& message)
+            : std::runtime_error(message) {}
+};
+
+class ArgumentNotPresentError : public std::runtime_error {
+    public:
+        explicit ArgumentNotPresentError(const std::string& message)
             : std::runtime_error(message) {}
 };
 
@@ -151,5 +181,60 @@ public:
     void insert(std::ptrdiff_t index , const char* data) ;
 
     std::any pop(std::ptrdiff_t index = -1);
+
+    template <typename T>
+    void remove(const T& value) {
+        using U = std::decay_t<T>;
+
+        if constexpr (!IsEqualityComparable<U>::value) {
+            throw UnsupportedOperationError(
+                "PythonList : Equality comparison is not supported for this type"
+            );
+        } else {
+            const std::type_index targetType(typeid(U));
+
+            for (auto it = list.begin(); it != list.end(); ++it) {
+                if (std::type_index(it->type()) != targetType) {
+                    continue;
+                }
+
+                if (std::any_cast<const U&>(*it) == value) {
+                    list.erase(it);
+                    return; 
+                }
+            }
+
+            throw ArgumentNotPresentError(
+                "PythonList : The specified value is not present in PythonList"
+            );
+        }
+    }
+
+    void remove(const char* value) ;
+
+    template <typename T>
+    bool contains(const T& value) const {
+        using U = std::decay_t<T>;
+
+        if constexpr (!IsEqualityComparable<U>::value) {
+            throw UnsupportedOperationError(
+                "PythonList: equality comparison is not supported for this type"
+            );
+        } else {
+            const std::type_index targetType(typeid(U));
+
+            for (const auto& element : list) {
+                if (std::type_index(element.type()) != targetType) {
+                    continue;
+                }
+
+                if (std::any_cast<const U&>(element) == value) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 
 };

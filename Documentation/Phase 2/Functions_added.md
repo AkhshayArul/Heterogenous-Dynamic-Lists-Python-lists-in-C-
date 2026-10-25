@@ -130,3 +130,33 @@ std::any last = list.pop();
 ```
 
 This provides functionality similar to Python's `list.pop()`, while retaining the type-erased storage mechanism used by `PythonList`.
+
+## 6. Removing Elements with `remove()`
+
+The `remove()` method removes the first occurrence of a specified value. It checks the stored element's type before comparing values.
+
+The `IsEqualityComparable` trait checks whether the type supports an equality expression that returns a Boolean-convertible result. If comparison is unsupported, an `UnsupportedOperationError` is thrown.
+
+If a matching element is found, it is removed using `std::vector::erase()`. If no match is found, an `ArgumentNotPresentError` is thrown. An overload for `const char*` arguments supports string literals.
+
+**Usage:**
+
+```cpp
+list.remove(10);      // Removes the first occurrence of 10
+list.remove("Hello"); // Removes the string "Hello"
+```
+
+## 7. Checking for Elements with `contains()`
+
+The `contains()` method checks whether a value exists in the list. It uses the same type-sensitive comparison approach as `remove()`.
+
+If equality comparison is unsupported, an `UnsupportedOperationError` is thrown. Otherwise, the method returns `true` if a matching element is found and `false` if it is absent. The list remains unchanged.
+
+An overload for `const char*` arguments supports string literals.
+
+**Usage:**
+
+```cpp
+bool found = list.contains(10);      // true if 10 exists
+bool absent = list.contains("Hi");   // false if "Hi" is absent
+```
