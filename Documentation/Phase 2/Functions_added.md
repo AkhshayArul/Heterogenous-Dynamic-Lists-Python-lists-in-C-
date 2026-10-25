@@ -73,7 +73,7 @@ int c = list[-3]; // 10
 
 An index outside the valid range, such as `list[-4]` for this list, throws an exception.
 
-## 4. Inserting Elements at an Index
+## 4. `insert()`
 
 An `insert()` function was added to allow elements to be inserted at a specified position. It uses the underlying `std::vector` insertion mechanism to place the new element at the requested index while shifting subsequent elements to the right.
 
@@ -101,7 +101,7 @@ list.insert(100, 40);
 
 A `const char*` overload was also added to ensure that string literals are stored as `std::string`, rather than as character pointers.
 
-## 5. Removing and Returning Elements with `pop()`
+## 5. `pop()`
 
 A `pop()` function was added to remove an element at a specified index and return its value. If no index is provided, it defaults to `-1`, removing the last element. The function also supports negative indexing.
 

@@ -183,3 +183,26 @@ std::cout << list[5];
 ```
 
 This allows individual elements to be printed without requiring the user to specify their data types explicitly.
+
+## Negative Indexing Support
+
+To improve the Python-like feel of `PythonList`, support for negative indexing was added, similar to Python's built-in lists.
+
+This was achieved by adding the length of the list to the index whenever a negative index is detected, converting it into its corresponding position from the beginning of the list.
+
+This allows users to use negative indices wherever indexing is supported, for example:
+
+```cpp
+list[-3]; // Retrieves the third-to-last element
+list[-1]; // Retrieves the last element
+```
+
+A `std::out_of_range` exception is thrown when an index is out of bounds in operations where such indices are not accepted, such as element retrieval.
+
+## Insertion at a Given Index and Popping by Index
+
+Python-like `insert()` and `pop()` methods were added, both supporting negative indexing.
+
+The `insert()` method uses the built-in `std::vector::insert()` function and `std::in_place_type` to construct the `std::any` object directly at the specified position in the vector. This is similar to using `emplace_back()`, but allows insertion at an arbitrary index. If the provided index is outside the list's bounds, it is adjusted to the beginning or end of the list, depending on its value.
+
+The `pop()` method removes and returns the element at the specified index. If no index is provided, it defaults to the last element. The removed element is returned as a `std::any` object, which can be cast to the required data type using `std::any_cast`.
