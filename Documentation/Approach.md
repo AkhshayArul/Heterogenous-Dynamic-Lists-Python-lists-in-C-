@@ -206,3 +206,13 @@ Python-like `insert()` and `pop()` methods were added, both supporting negative 
 The `insert()` method uses the built-in `std::vector::insert()` function and `std::in_place_type` to construct the `std::any` object directly at the specified position in the vector. This is similar to using `emplace_back()`, but allows insertion at an arbitrary index. If the provided index is outside the list's bounds, it is adjusted to the beginning or end of the list, depending on its value.
 
 The `pop()` method removes and returns the element at the specified index. If no index is provided, it defaults to the last element. The removed element is returned as a `std::any` object, which can be cast to the required data type using `std::any_cast`.
+
+## Removing and Checking for Elements
+
+The `remove()` and `contains()` methods were added to support basic Python-like list operations.
+
+The `IsEqualityComparable` trait is used to check whether the given type supports an equality expression whose result is convertible to `bool`. If comparison is unsupported, a custom `UnsupportedOperationError` is thrown.
+
+Both methods compare elements only when their stored types match the type of the given value. The `remove()` method removes the first matching element and throws `ArgumentNotPresentError` if no match is found. The `contains()` method returns `true` if a match is found and `false` otherwise, without modifying the list.
+
+Overloads for `const char*` arguments were also added to support string literals consistently with the list's string-handling behavior.
