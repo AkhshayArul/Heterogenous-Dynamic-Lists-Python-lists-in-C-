@@ -118,6 +118,10 @@ std::any PythonList::pop(std::ptrdiff_t index) {
     return result;
 }
 
+bool PythonList::contains(const char* value) const {
+    return(contains(std::string(value))) ;
+}
+
 void PythonList::remove(const char* value) {
     remove(std::string(value)) ;
 }
@@ -140,5 +144,59 @@ PythonList& PythonList::operator+=(const PythonList& other) {
 PythonList PythonList::operator+(const PythonList& other) const {
     PythonList result = *this;
     result.extend(other);
+    return result;
+}
+
+PythonList PythonList::slice(
+    std::ptrdiff_t start,
+    std::ptrdiff_t stop,
+    std::ptrdiff_t step
+) const {
+    if (step == 0) {
+        throw std::invalid_argument(
+            "PythonList: slice step cannot be zero"
+        );
+    }
+
+    std::ptrdiff_t n = static_cast<std::ptrdiff_t>(list.size());
+
+    if (step > 0) {
+        if (start < 0) start += n;
+        if (stop < 0) stop += n;
+
+        start = std::clamp(start, std::ptrdiff_t{0}, n);
+        stop = std::clamp(stop, std::ptrdiff_t{0}, n);
+    }
+    else {
+        if (start < 0) start += n;
+        if (stop < 0) stop += n;
+
+        start = std::clamp(start, std::ptrdiff_t{-1}, n - 1);
+        stop = std::clamp(stop, std::ptrdiff_t{-1}, n - 1);
+    }
+
+    PythonList result;
+
+    if (step > 0) {
+        for (std::ptrdiff_t i = start; i < stop;) {
+            result.list.emplace_back(list.at(
+                static_cast<std::size_t>(i)
+            ));
+
+            if (step >= stop - i) break;
+            i += step;
+        }
+    }
+    else {
+        for (std::ptrdiff_t i = start; i > stop;) {
+            result.list.emplace_back(list.at(
+                static_cast<std::size_t>(i)
+            ));
+
+            if (step <= stop - i) break;
+            i += step;
+        }
+    }
+
     return result;
 }

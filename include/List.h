@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <algorithm>
 #include <cstddef>
 #include <string>
 #include <utility>
@@ -237,10 +238,18 @@ public:
         }
     }
 
+    bool contains(const char* value) const ;
+
     void extend(const PythonList& other);
 
     PythonList& operator+=(const PythonList& other) ;
 
     PythonList operator+(const PythonList& other) const;
+
+    PythonList slice(
+        std::ptrdiff_t start,
+        std::ptrdiff_t stop,
+        std::ptrdiff_t step = 1
+    ) const;
 
 };

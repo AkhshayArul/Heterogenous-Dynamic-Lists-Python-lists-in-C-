@@ -185,3 +185,29 @@ The stored elements are copied according to their types' copy constructors.
 ```cpp
 PythonList list3 = list1 + list2;
 ```
+
+## 10. Slicing Lists with `slice()`
+
+The `slice()` method allows a portion of the list to be extracted using a starting index, an ending index, and an optional step.
+
+The starting index is inclusive, while the ending index is exclusive. Negative indices are supported, and both positive and negative steps can be used to traverse the list in different directions.
+
+The method returns a new `PythonList` containing copies of the selected elements without modifying the original list. Both `start` and `stop` must be explicitly provided.
+
+A step of `0` throws a `std::invalid_argument` exception. Out-of-range bounds are clamped to the valid slicing boundaries.
+
+**Usage:**
+
+```cpp
+PythonList list;
+for (int i : {10, 20, 30, 40, 50}) {
+    list.append(i);
+}
+
+std::cout << list.slice(1, 4);      // [20, 30, 40]
+std::cout << list.slice(0, 5, 2);   // [10, 30, 50]
+std::cout << list.slice(-3, -1);    // [30, 40]
+std::cout << list.slice(4, -6, -1); // [50, 40, 30, 20, 10]
+```
+
+The default step is `1`. Negative steps traverse the list in reverse, while a step of `0` is invalid.
