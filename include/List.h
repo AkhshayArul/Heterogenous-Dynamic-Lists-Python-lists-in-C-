@@ -237,4 +237,10 @@ public:
         }
     }
 
+    void extend(const PythonList& other);
+
+    PythonList& operator+=(const PythonList& other) ;
+
+    PythonList operator+(const PythonList& other) const;
+
 };

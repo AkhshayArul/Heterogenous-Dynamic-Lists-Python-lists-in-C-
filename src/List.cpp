@@ -121,3 +121,24 @@ std::any PythonList::pop(std::ptrdiff_t index) {
 void PythonList::remove(const char* value) {
     remove(std::string(value)) ;
 }
+
+void PythonList::extend(const PythonList& other) {
+    if (this == &other) {
+        std::vector<std::any> copy = list;
+        list.insert(list.end(), copy.begin(), copy.end());
+        return;
+    }
+
+    list.insert(list.end(), other.list.begin(), other.list.end());
+}
+
+PythonList& PythonList::operator+=(const PythonList& other) {
+    this->extend(other);
+    return *this ;
+}
+
+PythonList PythonList::operator+(const PythonList& other) const {
+    PythonList result = *this;
+    result.extend(other);
+    return result;
+}

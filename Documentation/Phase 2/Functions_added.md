@@ -160,3 +160,28 @@ An overload for `const char*` arguments supports string literals.
 bool found = list.contains(10);      // true if 10 exists
 bool absent = list.contains("Hi");   // false if "Hi" is absent
 ```
+
+## 8. Extending Lists with `extend()` and `operator+=`
+
+The `extend()` method appends all elements from another `PythonList` to the end of the current list. It copies the stored `std::any` elements while preserving their types. Self-extension is also supported.
+
+The `operator+=` overload uses `extend()` to provide a convenient way to append another list.
+
+**Usage:**
+
+```cpp
+list1.extend(list2);
+list1 += list2;
+```
+
+## 9. Concatenating Lists with `operator+`
+
+The `operator+` overload concatenates two `PythonList` objects and returns a new list containing the elements of both lists. It creates a copy of the left-hand list and extends it with the right-hand list, leaving the original lists unchanged.
+
+The stored elements are copied according to their types' copy constructors.
+
+**Usage:**
+
+```cpp
+PythonList list3 = list1 + list2;
+```

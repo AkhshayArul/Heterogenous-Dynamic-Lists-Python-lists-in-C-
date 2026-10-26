@@ -216,3 +216,11 @@ The `IsEqualityComparable` trait is used to check whether the given type support
 Both methods compare elements only when their stored types match the type of the given value. The `remove()` method removes the first matching element and throws `ArgumentNotPresentError` if no match is found. The `contains()` method returns `true` if a match is found and `false` otherwise, without modifying the list.
 
 Overloads for `const char*` arguments were also added to support string literals consistently with the list's string-handling behavior.
+
+## Extending and Concatenating Lists
+
+The `extend()` method was added to append the elements of another `PythonList` to the current list. The `operator+=` overload reuses this method to provide a more convenient interface.
+
+The `operator+` overload was added to concatenate two lists by copying the left-hand list and extending it with the right-hand list. This produces a new list without modifying the original lists.
+
+The elements are copied according to their types' copy constructors, rather than guaranteeing a deep copy of all underlying data.
