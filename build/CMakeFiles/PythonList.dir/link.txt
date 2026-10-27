@@ -1,2 +1,0 @@
-C:\msys64\ucrt64\bin\ar.exe qc libPythonList.a CMakeFiles/PythonList.dir/src/List.cpp.obj
-C:\msys64\ucrt64\bin\ranlib.exe libPythonList.a
