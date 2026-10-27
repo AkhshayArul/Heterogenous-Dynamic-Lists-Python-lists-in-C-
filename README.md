@@ -2,23 +2,34 @@
 
 ## Overview
 
-Implementation of Python-like lists in C++ that allow heterogeneous data type storage.
+An implementation of Python-like lists in C++ that supports heterogeneous data storage, allowing elements of different data types to coexist in the same list.
 
 ## Implementation
 
-The implementation uses a vector of std::any objects and an ElementProxy class to return the stored data, which can then be resolved by the user into the appropriate data type .
+`PythonList` uses `std::vector<std::any>` to store heterogeneous elements. A nested `ProxyElement` class provides access to stored elements through `operator[]`.
 
-This method allows the user to access data using the following syntax:
+Elements can be retrieved using `getValue<T>()` or, where appropriate, implicit type conversion.
+
+For example:
 
 ```cpp
-int a = Pylist[index].getValue<int>();
+PythonList list;
+list.append(42);
+list.append("Hello");
+
+int number = list[0];
+std::string message = list[1].getValue<std::string>();
 ```
+
+The library provides Python-like list operations, including insertion, removal, popping, extending, negative indexing, and slicing.
+
+The implementation uses C++17 features and the C++ standard library without requiring external libraries.
 
 ## Usage
 
 ### Requirements
 
-- A C++17-compatible compiler
+- A C++17-compatible compiler and standard library
 - [CMake](https://cmake.org/download/) 3.20 or later
 - A compatible build toolchain
 
@@ -50,6 +61,8 @@ cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 
+Use the same generator for subsequent CMake commands on that build directory.
+
 ### 3. Run the Tests
 
 Run the regression tests using CTest:
@@ -66,7 +79,7 @@ Install the compiled library, public headers, and CMake package configuration fi
 cmake --install build --prefix ./install
 ```
 
-The installation directory will contain the library, headers, and CMake package files required by other CMake projects.
+The installation prefix contains the library, public headers, and CMake package files needed by other CMake projects.
 
 ### 5. Use the Library
 
@@ -75,6 +88,7 @@ Include the public header and create a `PythonList` object:
 ```cpp
 #include <PythonList>
 #include <iostream>
+#include <string>
 
 int main() {
     PythonList list;
@@ -85,6 +99,12 @@ int main() {
 
     std::cout << list << '\n';
 
+    int number = list[0];
+    std::string message = list[2].getValue<std::string>();
+
+    std::cout << number << '\n';
+    std::cout << message << '\n';
+
     return 0;
 }
 ```
@@ -93,9 +113,11 @@ Example output:
 
 ```text
 [42, 3.14, Hello, World!]
+42
+Hello, World!
 ```
 
-The library supports heterogeneous elements, allowing different data types to be stored in the same list.
+The list can store elements of different supported types, including integers, floating-point values, strings, and nested lists.
 
 ### 6. Integrate with Another CMake Project
 
@@ -121,9 +143,9 @@ Configure the consumer project by specifying the installation prefix:
 cmake -S . -B build -DCMAKE_PREFIX_PATH="<installation-directory>"
 ```
 
-Replace `<installation-directory>` with the path to the directory where `PythonList` was installed. For example, if the installation directory is `install` inside the library repository, use its absolute path.
+Replace `<installation-directory>` with the path to the directory where `PythonList` was installed. For example, if you installed the library into the `install` directory inside the library repository, specify that directory's absolute path.
 
-Build and run the consumer:
+Build the consumer application:
 
 ```bash
 cmake --build build
@@ -131,17 +153,23 @@ cmake --build build
 
 The consumer project must use a compatible compiler and toolchain for the installed library.
 
+## Features
 
-## Requirements
-
-Before using this project, ensure you have the following:
-
-- *C++17-compatible compiler:* Required for features such as std::any.
-- *C++ standard library:* A standard library implementation that supports C++17.
-- *Terminal or command-line interface:* To compile and run the program.
-
-No external libraries are required; the project uses the C++ standard library.
+- Heterogeneous storage using `std::any`
+- Element access through `operator[]` and `ProxyElement`
+- Typed element retrieval using `getValue<T>()`
+- Implicit conversion to supported element types
+- Appending elements and references
+- Insertion and removal of elements
+- Pop-and-return operations
+- Extending a list with another `PythonList`
+- Checking whether a value exists
+- Negative indexing
+- List concatenation using `operator+` and `operator+=`
+- Slicing
+- Stream output using the library's printing mechanism
+- Custom type-mismatch exception handling
 
 ## Documentation
 
-For further information on the detailed plan and thought processes, refer to the Documentation folder.
+For details about the design decisions, implementation process, and development phases, refer to the `Documentation` directory.
