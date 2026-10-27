@@ -16,65 +16,121 @@ int a = Pylist[index].getValue<int>();
 
 ## Usage
 
-The end product is an includable library that can be used as follows:
+### Requirements
 
-```cpp
-#include <PythonList.h>
-```
+- A C++17-compatible compiler
+- [CMake](https://cmake.org/download/) 3.20 or later
+- A compatible build toolchain
 
-### Current Usage 
-
-The project is currently under development . To test its features before the entire project is done and made into a package follow the following steps .
-
-#### 1. Clone the Repository
-
-Clone the project from GitHub using the following command:
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/AkhshayArul/Heterogenous-Dynamic-Lists-Python-lists-in-C-.git
-```
-
-#### 2. Navigate to the Project Directory
-
-```bash
 cd Heterogenous-Dynamic-Lists-Python-lists-in-C-
 ```
 
-#### 3. Compile the Project
+### 2. Build the Library
 
-Code the features you need to test in main.cpp .
-
-Compile the source files along with your main program using a C++17-compatible compiler.
-
-For example, using g++:
+Configure the project and generate the build files:
 
 ```bash
-g++ -std=c++17 -Iinclude main.cpp src/List.cpp -o PythonList
+cmake -S . -B build
 ```
 
-#### 4. Run the Program
-
-On Windows:
+Build the library:
 
 ```bash
-PythonList.exe
+cmake --build build
 ```
 
-On Linux or macOS:
+If you are using MSYS2 UCRT64 with MinGW Makefiles, you can specify the generator explicitly:
 
-bash
-./PythonList
+```bash
+cmake -S . -B build -G "MinGW Makefiles"
+cmake --build build
+```
 
+### 3. Run the Tests
 
-#### 5. Use the Library
+Run the regression tests using CTest:
 
-Include the header in your C++ program:
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+### 4. Install the Library
+
+Install the compiled library, public headers, and CMake package configuration files:
+
+```bash
+cmake --install build --prefix ./install
+```
+
+The installation directory will contain the library, headers, and CMake package files required by other CMake projects.
+
+### 5. Use the Library
+
+Include the public header and create a `PythonList` object:
 
 ```cpp
-#include "List.h"
+#include <PythonList>
+#include <iostream>
+
+int main() {
+    PythonList list;
+
+    list.append(42);
+    list.append(3.14);
+    list.append("Hello, World!");
+
+    std::cout << list << '\n';
+
+    return 0;
+}
 ```
 
-You can then create a PythonList object and use its available features. Refer to the project documentation for details about the supported operations and their usage.
+Example output:
+
+```text
+[42, 3.14, Hello, World!]
+```
+
+The library supports heterogeneous elements, allowing different data types to be stored in the same list.
+
+### 6. Integrate with Another CMake Project
+
+After installing the library, another CMake project can discover and link against it.
+
+In the consumer project's `CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+
+project(MyApplication LANGUAGES CXX)
+
+find_package(PythonList CONFIG REQUIRED)
+
+add_executable(MyApplication main.cpp)
+
+target_link_libraries(MyApplication PRIVATE PythonList::PythonList)
+```
+
+Configure the consumer project by specifying the installation prefix:
+
+```bash
+cmake -S . -B build -DCMAKE_PREFIX_PATH="<installation-directory>"
+```
+
+Replace `<installation-directory>` with the path to the directory where `PythonList` was installed. For example, if the installation directory is `install` inside the library repository, use its absolute path.
+
+Build and run the consumer:
+
+```bash
+cmake --build build
+```
+
+The consumer project must use a compatible compiler and toolchain for the installed library.
+
 
 ## Requirements
 

@@ -1,0 +1,7 @@
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/lib/libPythonList.a
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/include/PythonList
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/include/List.h
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/lib/cmake/PythonList/PythonListTargets.cmake
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/lib/cmake/PythonList/PythonListTargets-noconfig.cmake
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/lib/cmake/PythonList/PythonListConfig.cmake
+C:\Users\Akhshay\Desktop\Heterogenous-Dynamic-Lists-Python-lists-in-C-/install/lib/cmake/PythonList/PythonListConfigVersion.cmake

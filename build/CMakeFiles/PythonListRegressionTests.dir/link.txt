@@ -1,0 +1,3 @@
+C:\msys64\ucrt64\bin\cmake.exe -E rm -f CMakeFiles\PythonListRegressionTests.dir/objects.a
+C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\PythonListRegressionTests.dir/objects.a @CMakeFiles\PythonListRegressionTests.dir\objects1.rsp
+C:\msys64\ucrt64\bin\c++.exe -Wl,--whole-archive CMakeFiles\PythonListRegressionTests.dir/objects.a -Wl,--no-whole-archive -o PythonListRegressionTests.exe -Wl,--out-implib,libPythonListRegressionTests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\PythonListRegressionTests.dir\linkLibs.rsp
