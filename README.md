@@ -173,3 +173,8 @@ The consumer project must use a compatible compiler and toolchain for the instal
 ## Documentation
 
 For details about the design decisions, implementation process, and development phases, refer to the `Documentation` directory.
+
+## License
+
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
