@@ -8,6 +8,7 @@
 \usetikzlibrary{shapes.multipart, positioning, arrows.meta, calc}
 \usepackage{titlesec}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{tabularx}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
@@ -23,8 +24,8 @@
 % Page styling
 \pagestyle{fancy}
 \fancyhf{}
-\rhead{\small\textsf{Chapter 1: Project Report}}
 \lhead{\small\textsf{Heterogeneous Dynamic List (Python List in C++)}}
+\rhead{}
 \cfoot{\thepage}
 
 % Title formats
@@ -119,7 +120,16 @@
 
 \begin{document}
 
+% Configure numbering to start at Chapter 21 (all sections 21.x, tables 21.x, figures 21.x)
+\setcounter{chapter}{20}
+
 \chapter{Heterogeneous Dynamic List (Python List in C++)}
+\setcounter{chapter}{21}
+\renewcommand{\thechapter}{21}
+\renewcommand{\thesection}{21.\arabic{section}}
+\renewcommand{\thesubsection}{21.\arabic{section}.\arabic{subsection}}
+\renewcommand{\thetable}{21.\arabic{table}}
+\renewcommand{\thefigure}{21.\arabic{figure}}
 \textbf{Authors:} Akhshay Arulpragasam, Jeevan R
 
 \vspace{1.5em}
@@ -209,7 +219,7 @@ The primary components and structural associations in the codebase are detailed 
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabularx}{\linewidth}{@{}p{3.5cm} p{2.6cm} p{2.2cm} X@{}}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.2cm} X@{}}
 \toprule
 \textbf{Source Entity} & \textbf{Target Entity} & \textbf{Relationship} & \textbf{Architectural Description} \\
 \midrule
@@ -218,7 +228,7 @@ The primary components and structural associations in the codebase are detailed 
 \texttt{Un\-sup\-port\-ed\-Op\-er\-a\-tion\-Er\-ror} & \texttt{std::run\-time\_\allowbreak error} & Inheritance & Derives standard error reporting and \texttt{what()} interface. \\
 \texttt{Ar\-gu\-ment\-Not\-Pre\-sent\-Er\-ror} & \texttt{std::run\-time\_\allowbreak error} & Inheritance & Derives standard error reporting and \texttt{what()} interface. \\
 \texttt{PythonList} & \texttt{IsPrintable<T>} & Dependency & Compile-time validation prior to printer registration. \\
-\texttt{PythonList} & \texttt{IsEquality\-Comparable<T>} & Dependency & Compile-time validation prior to equality evaluation. \\
+\texttt{PythonList} & \texttt{IsEquality-}\\\texttt{Comparable<T>} & Dependency & Compile-time validation prior to equality evaluation. \\
 \bottomrule
 \end{tabularx}
 \caption{Structural Relationships and Associations in \texttt{include/List.h}.}
@@ -575,5 +585,44 @@ The end-to-end layered architecture mapping the operating environment, public AP
 \caption{System Architecture Blueprint of the Heterogeneous Dynamic List Container.}
 \label{fig:arch_blueprint}
 \end{figure}
+
+\newpage
+\section{Technology Stack}
+
+The Heterogeneous Dynamic List library is engineered using modern ISO C++ standards, declarative build configurations, and formal verification harnesses to ensure compile-time type safety, deterministic destruction, and seamless developer ergonomics. Table~\ref{tab:tech_stack} details the complete toolchain and technology stack powering the project.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.8cm} X@{}}
+\toprule
+\textbf{Component Layer} & \textbf{Technology / Tool} & \textbf{Architectural Role \& Utilization} \\
+\midrule
+\textbf{Programming Language} & ISO Modern C++17 \newline (\texttt{-std=c++17}) & Core container language utilizing modern features including \texttt{std::any}, \texttt{std::void\_t}, structured bindings, and fold expressions. \\
+\addlinespace
+\textbf{Type Erasure Core} & \texttt{std::any} \& \newline \texttt{std::type\_index} & Dynamic homogeneous array abstraction allowing arbitrary copy-constructible objects to reside in a contiguous memory block without inheritance. \\
+\addlinespace
+\textbf{Metaprogramming} & SFINAE \& \newline \texttt{if constexpr} & Compile-time type introspection (\texttt{IsPrintable}, \texttt{IsEqualityComparable}) to conditionally guard member functions and printer registration. \\
+\addlinespace
+\textbf{Memory Semantics} & \texttt{std::vector}, \newline \texttt{reference\_wrapper} & RAII-compliant automatic lifecycle management with Small Buffer Optimization (SBO) and support for explicit reference semantics. \\
+\addlinespace
+\textbf{Build \& Packaging} & Modern CMake \newline (\texttt{v3.15+}) & Modular cross-platform compilation, target export (\texttt{PythonList::PythonList}), and installation rules via \texttt{GNUInstallDirs}. \\
+\addlinespace
+\textbf{Test Framework} & CTest \& \newline Custom Harnesses & Automated regression suites, edge-case boundary testing, signed negative indexing assertions, and memory integrity verification. \\
+\addlinespace
+\textbf{Documentation} & \LaTeX{} (Report) \& \newline TikZ/PGF & Production of publication-quality formal specifications, UML class diagrams, and multi-tier architectural blueprints. \\
+\bottomrule
+\end{tabularx}
+\caption{Comprehensive Technology Stack and Toolchain Specifications.}
+\label{tab:tech_stack}
+\end{table}
+
+\subsection{Toolchain and Environmental Requirements}
+\begin{itemize}
+    \item \textbf{C++ Compiler:} GCC 9+, Clang 10+, or Microsoft Visual Studio 2019+ with complete C++17 standard library support.
+    \item \textbf{Build Tool:} CMake version 3.15 or newer with Ninja or GNU Make generators.
+    \item \textbf{Memory Model:} Deterministic stack and heap resource acquisition using modern RAII paradigms; zero raw pointer ownership.
+    \item \textbf{Operating Environments:} Multi-platform support validated on Linux (Ubuntu 20.04/22.04 LTS), macOS, and Windows 10/11 (MSVC/MinGW).
+\end{itemize}
 
 \end{document}
