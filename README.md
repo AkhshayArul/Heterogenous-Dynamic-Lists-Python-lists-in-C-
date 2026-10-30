@@ -63,12 +63,18 @@ cmake --build build
 
 Use the same generator for subsequent CMake commands on that build directory.
 
-### 3. Run the Tests
+### 3. Run the Tests and Demo main.cpp
 
 Run the regression tests using CTest:
 
 ```bash
 ctest --test-dir build --output-on-failure
+```
+
+Run the Demo main.cpp:
+
+```bash
+.\build\PythonListDemo.exe 
 ```
 
 ### 4. Install the Library
