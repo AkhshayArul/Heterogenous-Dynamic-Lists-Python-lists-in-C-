@@ -1,4 +1,4 @@
-#include "List.h"
+#include <PythonList>
 #include <iostream>
 #include <string>
 
@@ -68,4 +68,8 @@ int main() {
 
     std::cout << "\n=== DEMO COMPLETED SUCCESSFULLY ===\n";
     return 0;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 1a46b326169b54f9b1bb63df1e02ad4a38acaa53

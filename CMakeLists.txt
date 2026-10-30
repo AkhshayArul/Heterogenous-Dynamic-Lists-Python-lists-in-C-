@@ -16,8 +16,8 @@ target_include_directories(PythonList
 
 target_compile_features(PythonList PUBLIC cxx_std_17)
 
-# add_executable(PythonListDemo main.cpp)
-# target_link_libraries(PythonListDemo PRIVATE PythonList)
+add_executable(PythonListDemo main.cpp)
+target_link_libraries(PythonListDemo PRIVATE PythonList)
 
 include(CTest)
 
