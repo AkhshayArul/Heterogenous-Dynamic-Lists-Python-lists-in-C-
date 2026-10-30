@@ -4,6 +4,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{xcolor}
+\usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{shapes.multipart, positioning, arrows.meta, calc}
 \usepackage{titlesec}
@@ -13,6 +14,31 @@
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{microtype}
+\usepackage{listings}
+
+% Code listing styling
+\lstdefinestyle{cppsnippet}{
+    language=C++,
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{blue!80!black}\bfseries,
+    stringstyle=\color{red!70!black},
+    commentstyle=\color{green!50!black}\itshape,
+    morekeywords={std, any, any_cast, reference_wrapper, void_t, declval, bool_constant, is_convertible_v, false_type, ostream},
+    frame=single,
+    rulecolor=\color{black!25},
+    backgroundcolor=\color{black!2},
+    xleftmargin=12pt,
+    xrightmargin=12pt,
+    framexleftmargin=8pt,
+    framexrightmargin=8pt,
+    framextopmargin=6pt,
+    framexbottommargin=6pt,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    lineskip=1.5pt
+}
 
 \hypersetup{
     colorlinks=true,
@@ -246,38 +272,38 @@ The complete UML Class Diagram representing all entities, members, types, and as
 \begin{tikzpicture}[auto]
 
     % COLUMN 1 (LEFT): EXCEPTION HIERARCHY
-    \node (runtime_error) [umlexception, text width=5.2cm] at (-9.2, 4.8) {
+    \node (runtime_error) [umlexception, text width=5.2cm] at (-9.2, 5.0) {
         \centering\textbf{\textless\textless exception\textgreater\textgreater}\\[-0.2em]
         \centering\textbf{std::runtime\_error}
         \nodepart{second}
         + what() const : const char*
     };
 
-    \node (type_mismatch) [umlexception, text width=5.2cm] at (-9.2, 2.3) {
+    \node (type_mismatch) [umlexception, text width=5.2cm] at (-9.2, 2.4) {
         \centering\textbf{TypeMismatchError}
         \nodepart{second}
         + explicit TypeMismatchError(\\
         \quad msg: const std::string\&)
     };
 
-    \node (unsupported_op) [umlexception, text width=5.2cm] at (-9.2, 0.0) {
+    \node (unsupported_op) [umlexception, text width=5.2cm] at (-9.2, -0.1) {
         \centering\textbf{UnsupportedOperationError}
         \nodepart{second}
         + explicit UnsupportedOperationError(\\
         \quad msg: const std::string\&)
     };
 
-    \node (arg_not_present) [umlexception, text width=5.2cm] at (-9.2, -2.3) {
+    \node (arg_not_present) [umlexception, text width=5.2cm] at (-9.2, -2.6) {
         \centering\textbf{ArgumentNotPresentError}
         \nodepart{second}
         + explicit ArgumentNotPresentError(\\
         \quad msg: const std::string\&)
     };
 
-    % Inheritance
+    % Inheritance - All derived errors in separate boxes pointing distinct arrows to std::runtime_error
     \draw [inherits] (type_mismatch.north) -- (runtime_error.south);
-    \draw [thick, draw=black!80] (unsupported_op.west) -- ++(-0.6, 0) |- (runtime_error.west);
-    \draw [thick, draw=black!80] (arg_not_present.west) -- ++(-1.0, 0) |- (runtime_error.west);
+    \draw [inherits] (unsupported_op.west) -- ++(-0.7, 0) |- ($(runtime_error.west) + (0, -0.25)$);
+    \draw [inherits] (arg_not_present.west) -- ++(-1.4, 0) |- ($(runtime_error.west) + (0, 0.25)$);
 
     % COLUMN 2 (CENTER): MAIN CONTAINER PythonList
     \node (python_list) [umlclass, text width=9.5cm] at (0.5, 0.6) {
@@ -362,9 +388,6 @@ The complete UML Class Diagram representing all entities, members, types, and as
 
     \draw [composition] (proxy_element.west) -- 
           node[above, midway, font=\scriptsize\sffamily] {nests / instantiates} (python_list.east |- proxy_element.west);
-
-    \draw [dependency] (proxy_element.south) -- ++(0, -1.8) -- (-12.6, -7.0) |- 
-          node[pos=0.15, below, font=\scriptsize\sffamily] {throws} (type_mismatch.west);
 
 \end{tikzpicture}
 }
@@ -624,5 +647,189 @@ The Heterogeneous Dynamic List library is engineered using modern ISO C++ standa
     \item \textbf{Memory Model:} Deterministic stack and heap resource acquisition using modern RAII paradigms; zero raw pointer ownership.
     \item \textbf{Operating Environments:} Multi-platform support validated on Linux (Ubuntu 20.04/22.04 LTS), macOS, and Windows 10/11 (MSVC/MinGW).
 \end{itemize}
+
+\newpage
+\section{Code Snippets}
+
+The following code snippets highlight the core architectural components of the \texttt{PythonList} library: compile-time SFINAE type introspection and the nested proxy pattern enabling lazy evaluation and safe dynamic type extraction.
+
+\subsection{Compile-Time Type Trait: IsEqualityComparable}
+The \texttt{IsEqualityComparable} type trait leverages SFINAE (Substitution Failure Is Not An Error) with \texttt{std::void\_t} and \texttt{std::declval} to verify whether an equality comparison (\texttt{operator==}) is defined for type \texttt{T} at compile time. It further checks that the expression evaluates to a result convertible to \texttt{bool}. This trait guards runtime search operations like \texttt{remove()} and \texttt{contains()}, safely raising an \texttt{UnsupportedOperationError} when applied to non-comparable types.
+
+\begin{lstlisting}[style=cppsnippet]
+template <typename T, typename = void>
+struct IsEqualityComparable : std::false_type {};
+
+template <typename T>
+struct IsEqualityComparable<
+    T,
+    std::void_t<
+        decltype(std::declval<const T&>() ==
+                 std::declval<const T&>())
+    >
+> : std::bool_constant<
+        std::is_convertible_v<
+            decltype(std::declval<const T&>() ==
+                     std::declval<const T&>()),
+            bool
+        >
+    > {};
+\end{lstlisting}
+
+\subsection{Behavioral Proxy Pattern: Nested ProxyElement Class}
+The \texttt{ProxyElement} inner class serves as an intermediate evaluator returned by \texttt{PythonList::}\allowbreak\texttt{operator[]}. It holds an internal reference to the targeted \texttt{std::any} element, enabling lazy type deduction, automatic implicit conversion via \texttt{operator T()}, explicit extraction via \texttt{getValue<T>()}, and output stream formatting via \texttt{operator<<}. If type conversion fails, it throws a domain-specific \texttt{TypeMismatchError}.
+
+\begin{lstlisting}[style=cppsnippet]
+class ProxyElement {
+private:
+    std::any& data;
+
+public:
+    ProxyElement(std::any& d) : data(d) {}
+
+    template<typename T>
+    T& getValue() {
+        if (auto value = std::any_cast<T>(&data)) {
+            return *value;
+        }
+
+        if (auto ref =
+                std::any_cast<std::reference_wrapper<T>>(&data)) {
+            return ref->get();
+        }
+
+        throw TypeMismatchError(
+            "PythonList: requested type does not match stored type"
+        );
+    }
+
+    template <typename T>
+    operator T() {
+        return getValue<T>();
+    }
+
+    friend std::ostream& operator<<(
+        std::ostream& os,
+        const ProxyElement& proxy
+    );
+    
+    void print(std::ostream& os) const;
+};
+\end{lstlisting}
+
+\newpage
+\section{Demonstration}
+
+This section demonstrates the full functional capabilities of the \texttt{PythonList} container library through an integrated sample client application. The demonstration exercises heterogeneous storage, dynamic polymorphic printing, signed negative indexing, proxy-mediated type extraction, nested multi-dimensional structures, reference-tracking semantics, multi-stride slicing, in-place and non-destructive operators, and domain exception handling.
+
+\subsection{Sample Input Code}
+The client application (\texttt{main.cpp}) includes the container header (\texttt{\#include <PythonList>}) and executes seven sequential functional demonstration phases:
+
+\begin{lstlisting}[style=cppsnippet]
+#include <PythonList>
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "=== HETEROGENEOUS DYNAMIC LIST (C++17) DEMO ===\n\n";
+
+    // 1. Heterogeneous Storage & Dynamic Printing
+    PythonList list;
+    list.append(42);                      // int
+    list.append(3.14159);                 // double
+    list.append("Hello, C++17!");         // string
+    list.append(true);                    // bool
+
+    std::cout << "1. Heterogeneous List:\n   " << list << "\n\n";
+
+    // 2. Negative Indexing & Automatic Extraction (Proxy Pattern)
+    int first = list[0];                  // Implicit conversion
+    auto last = list[-1];                 // Negative indexing: -1 is the tail
+
+    std::cout << "2. Indexing & Extraction:\n";
+    std::cout << "   list[0]  (int)  = " << first << "\n";
+    std::cout << "   list[-1] (tail) = " << last << "\n\n";
+
+    // 3. Nested Lists (Multi-dimensional storage)
+    PythonList sublist;
+    sublist.append("nested_A");
+    sublist.append("nested_B");
+    list.append(sublist);
+
+    std::cout << "3. Nested List Support:\n   " << list << "\n\n";
+
+    // 4. Value vs. Reference Semantics
+    int live_var = 100;
+    list.appendReference(live_var);       // Tracks variable by reference
+
+    std::cout << "4. Reference Semantics:\n";
+    std::cout << "   Before mutation : list[-1] = " << list[-1] << "\n";
+    live_var = 999;                       // Mutate original external variable
+    std::cout << "   After mutation  : list[-1] = " << list[-1] << " (updated live!)\n\n";
+
+    // 5. Pythonic Slicing with Steps & Reversal
+    PythonList numbers;
+    for (int i = 0; i < 6; ++i) numbers.append(i); // [0, 1, 2, 3, 4, 5]
+
+    std::cout << "5. Slicing Capabilities:\n";
+    std::cout << "   Original list       : " << numbers << "\n";
+    std::cout << "   Slice [1:5:2]       : " << numbers.slice(1, 5, 2) << "\n";
+    std::cout << "   Reverse slice [5:0:-1]: " << numbers.slice(5, 0, -1) << "\n\n";
+
+    // 6. Common Python Operations: insert, pop, operators
+    numbers.insert(0, "START");           // Insert at head
+    auto popped = numbers.pop(-1);        // Pop last item
+    PythonList merged = numbers + list.slice(0, 2); // Concatenation via operator+
+
+    std::cout << "6. Manipulations & Operators:\n";
+    std::cout << "   After insert & pop  : " << numbers << "\n";
+    std::cout << "   Concatenated list (+): " << merged << "\n\n";
+
+    // 7. Robust Type Safety & Domain Exceptions
+    std::cout << "7. Exception Safety:\n";
+    try {
+        // list[0] stores an integer (42); attempting string cast triggers exception
+        std::string bad_cast = list[0];
+    } catch (const TypeMismatchError& e) {
+        std::cout << "   Caught TypeMismatchError: \"" << e.what() << "\"\n";
+    }
+
+    std::cout << "\n=== DEMO COMPLETED SUCCESSFULLY ===\n";
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Sample Execution Output}
+Figure~\ref{fig:demo_output} displays the terminal console output captured upon running the compiled demo application binary (\texttt{MyApplication.exe}). The output confirms all seven functional phases, including seamless stream printing, live variable mutation through references, multi-stride and reverse slicing, and type mismatch diagnostics.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{demo_output.png}
+\caption{Terminal Console Output of the \texttt{PythonList} Demonstration Program.}
+\label{fig:demo_output}
+\end{figure}
+
+\newpage
+\section{Conclusion}
+
+The \texttt{Heterogeneous Dynamic List} project successfully demonstrates that Python's expressive, dynamic container semantics can be faithfully realized in Modern C++17 without compromising type safety, deterministic resource management, or runtime efficiency. By moving beyond traditional C-style workarounds---such as unsafe \texttt{void*} pointer casts, rigid \texttt{std::variant} closed unions, and invasive common base-class hierarchies---the library establishes an extensible container architecture built entirely upon ISO C++17 primitives.
+
+\subsection{Key Technical Accomplishments}
+\begin{itemize}
+    \item \textbf{Type-Safe Heterogeneity:} Through modern type erasure (\texttt{std::any}) and runtime reflection (\texttt{std::type\_\allowbreak index}), arbitrary copy-constructible objects, primitives, and nested lists reside within a single contiguous dynamic array with full RAII lifecycle guarantees and zero memory leaks.
+    
+    \item \textbf{Ergonomic Intermediation via the Proxy Pattern:} The nested \texttt{ProxyElement} design pattern decouples element indexing from immediate type resolution, enabling seamless implicit conversion (\texttt{operator T()}), explicit typed extraction (\texttt{getValue<T>()}), and polymorphic stream formatting.
+    
+    \item \textbf{Compile-Time Verification (SFINAE):} Custom traits (\texttt{IsPrintable} and\newline
+    \texttt{Is\-Equality\-Comparable}) statically validate type capabilities during template instantiation, translating potential invalid operations into structured, catchable domain exceptions\newline
+    (\texttt{Un\-sup\-port\-ed\-Op\-er\-a\-tion\-Er\-ror}).
+    
+    \item \textbf{Authentic Pythonic Semantics:} Full operational parity with Python's indexing conventions, including signed negative offsets, multi-stride slicing with automatic boundary clamping, list concatenation, and reference-tracking capabilities via \texttt{std::reference\_\allowbreak wrapper}.
+    
+    \item \textbf{Production-Grade Packaging:} A zero-dependency, modern CMake build pipeline providing target-based exports (\texttt{PythonList::\allowbreak PythonList}), standardized packaging rules via \texttt{GNUInstallDirs}, and comprehensive regression validation through automated CTest suites.
+\end{itemize}
+
+\subsection{Final Remarks and Future Directions}
+In conclusion, the project delivers an industrial-strength, production-ready C++ container that bridges the rapid prototyping ergonomics of dynamic scripting languages with the raw speed, deterministic memory safety, and compile-time rigor of modern C++. Potential future directions include incorporating concurrent thread-safe synchronization primitives, custom polymorphic memory allocators (PMR), and native JSON serialization bridges.
 
 \end{document}

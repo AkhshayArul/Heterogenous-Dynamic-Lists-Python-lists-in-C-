@@ -89,7 +89,7 @@
     % =========================================================================
 
     % Base Exception std::runtime_error
-    \node (runtime_error) [umlexception, text width=5.2cm] at (-9.2, 4.8) {
+    \node (runtime_error) [umlexception, text width=5.2cm] at (-9.2, 5.0) {
         \centering\textbf{\textless\textless exception\textgreater\textgreater}\\[-0.2em]
         \centering\textbf{std::runtime\_error}
         \nodepart{second}
@@ -97,7 +97,7 @@
     };
 
     % Custom Exception 1: TypeMismatchError
-    \node (type_mismatch) [umlexception, text width=5.2cm] at (-9.2, 2.3) {
+    \node (type_mismatch) [umlexception, text width=5.2cm] at (-9.2, 2.4) {
         \centering\textbf{TypeMismatchError}
         \nodepart{second}
         + explicit TypeMismatchError(\\
@@ -105,7 +105,7 @@
     };
 
     % Custom Exception 2: UnsupportedOperationError
-    \node (unsupported_op) [umlexception, text width=5.2cm] at (-9.2, 0.0) {
+    \node (unsupported_op) [umlexception, text width=5.2cm] at (-9.2, -0.1) {
         \centering\textbf{UnsupportedOperationError}
         \nodepart{second}
         + explicit UnsupportedOperationError(\\
@@ -113,17 +113,17 @@
     };
 
     % Custom Exception 3: ArgumentNotPresentError
-    \node (arg_not_present) [umlexception, text width=5.2cm] at (-9.2, -2.3) {
+    \node (arg_not_present) [umlexception, text width=5.2cm] at (-9.2, -2.6) {
         \centering\textbf{ArgumentNotPresentError}
         \nodepart{second}
         + explicit ArgumentNotPresentError(\\
         \quad msg: const std::string\&)
     };
 
-    % Clean Inheritance Arrows (Direct vertical & outer trunk - NO CROSSING)
+    % Clean Inheritance Arrows - All derived errors in separate boxes pointing distinct arrows to std::runtime_error
     \draw [inherits] (type_mismatch.north) -- (runtime_error.south);
-    \draw [thick, draw=black!80] (unsupported_op.west) -- ++(-0.6, 0) |- (runtime_error.west);
-    \draw [thick, draw=black!80] (arg_not_present.west) -- ++(-1.0, 0) |- (runtime_error.west);
+    \draw [inherits] (unsupported_op.west) -- ++(-0.7, 0) |- ($(runtime_error.west) + (0, -0.25)$);
+    \draw [inherits] (arg_not_present.west) -- ++(-1.4, 0) |- ($(runtime_error.west) + (0, 0.25)$);
 
     % =========================================================================
     % COLUMN 2 (CENTER): MAIN CONTAINER PythonList (Centered at X = 0.5)
@@ -224,10 +224,6 @@
     % 3. Composition with ProxyElement (Wide channel ensures label is fully isolated)
     \draw [composition] (proxy_element.west) -- 
           node[above, midway, font=\scriptsize\sffamily] {nests / instantiates} (python_list.east |- proxy_element.west);
-
-    % 4. ProxyElement Throws TypeMismatchError (Outer perimeter path well below PythonList)
-    \draw [dependency] (proxy_element.south) -- ++(0, -1.8) -- (-12.6, -7.0) |- 
-          node[pos=0.15, below, font=\scriptsize\sffamily] {throws} (type_mismatch.west);
 
 \end{tikzpicture}
 }
